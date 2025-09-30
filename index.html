@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilares de Progreso</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: left;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+        .chart-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .chart-title.mental { color: #007bff; }
+        .chart-title.physical { color: #28a745; }
+        .chart-title.university { color: #dc3545; }
+        .chart-title.work { color: #6f42c1; }
+        canvas {
+            max-width: 200px;
+            max-height: 200px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #fff;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ccc;
+            font-size: 12px;
+            text-decoration: none;
+            flex: 1;
+        }
+        .nav-item.active {
+            color: #007bff;
+        }
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+        .nav-item:nth-child(3) .nav-icon {
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .icon-calendar::before { content: '🗓️'; }
+        .icon-stats::before { content: '📈'; }
+        .icon-scan::before { content: '📸'; }
+        .icon-store::before { content: '🏪'; }
+        .icon-profile::before { content: '👤'; }
+    </style>
+</head>
+<body>
+
+    <div class="header">PILARES</div>
+
+    <div class="charts-container">
+        <div class="chart-card">
+            <a href="#" class="chart-title mental">SALUD MENTAL</a>
+            <canvas id="chartMental"></canvas>
+        </div>
+        <div class="chart-card">
+            <a href="#" class="chart-title physical">SALUD FÍSICA</a>
+            <canvas id="chartPhysical"></canvas>
+        </div>
+        <div class="chart-card">
+            <a href="#" class="chart-title university">UNIVERSIDAD</a>
+            <canvas id="chartUniversity"></canvas>
+        </div>
+        <div class="chart-card">
+            <a href="#" class="chart-title work">TRABAJO</a>
+            <canvas id="chartWork"></canvas>
+        </div>
+    </div>
+
+    <div class="navbar">
+        <a href="#" class="nav-item"><div class="nav-icon icon-calendar"></div></a>
+        <a href="#" class="nav-item active"><div class="nav-icon icon-stats"></div></a>
+        <a href="#" class="nav-item"><div class="nav-icon icon-scan"></div></a>
+        <a href="#" class="nav-item"><div class="nav-icon icon-store"></div></a>
+        <a href="#" class="nav-item"><div class="nav-icon icon-profile"></div></a>
+    </div>
+
+    <script>
+        function createRadarChart(ctx, label, data, color) {
+            return new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Objetivo 1', 'Objetivo 2', 'Objetivo 3'],
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: color + '33', // transparencia
+                        borderColor: color,
+                        borderWidth: 2,
+                        pointBackgroundColor: color
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        createRadarChart(document.getElementById('chartMental'), 'Mental', [8, 6, 7], '#007bff');
+        createRadarChart(document.getElementById('chartPhysical'), 'Física', [5, 9, 6], '#28a745');
+        createRadarChart(document.getElementById('chartUniversity'), 'Universidad', [7, 4, 8], '#dc3545');
+        createRadarChart(document.getElementById('chartWork'), 'Trabajo', [6, 8, 5], '#6f42c1');
+    </script>
+
+</body>
+</html>
