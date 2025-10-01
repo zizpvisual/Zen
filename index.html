@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -131,15 +131,15 @@
     </div>
 
     <script>
-        function createRadarChart(ctx, label, data, color) {
+        function createRadarChart(ctx, label, labels, data, color, maxScale) {
             return new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Objetivo 1', 'Objetivo 2', 'Objetivo 3'],
+                    labels: labels,
                     datasets: [{
                         label: label,
                         data: data,
-                        backgroundColor: color + '33', // transparencia
+                        backgroundColor: color + '33',
                         borderColor: color,
                         borderWidth: 2,
                         pointBackgroundColor: color
@@ -151,18 +151,41 @@
                         r: {
                             beginAtZero: true,
                             min: 0,
-                            max: 10
+                            max: maxScale
                         }
                     }
                 }
             });
         }
 
-        createRadarChart(document.getElementById('chartMental'), 'Mental', [8, 6, 7], '#007bff');
-        createRadarChart(document.getElementById('chartPhysical'), 'Física', [5, 9, 6], '#28a745');
-        createRadarChart(document.getElementById('chartUniversity'), 'Universidad', [7, 4, 8], '#dc3545');
-        createRadarChart(document.getElementById('chartWork'), 'Trabajo', [6, 8, 5], '#6f42c1');
+        // Configuración inicial
+        let mentalLabels = ['Dormir', 'Celular', 'Organización'];
+        let physicalLabels = ['Hidratación', 'Comida', 'Caminar'];
+
+        let chartMental = createRadarChart(document.getElementById('chartMental'), 'Mental', mentalLabels, [8, 6, 7], '#007bff', 20);
+        let chartPhysical = createRadarChart(document.getElementById('chartPhysical'), 'Física', physicalLabels, [5, 9, 6], '#28a745', 20);
+        let chartUniversity = createRadarChart(document.getElementById('chartUniversity'), 'Universidad', ['Objetivo 1','Objetivo 2','Objetivo 3'], [7, 4, 8], '#dc3545', 10);
+        let chartWork = createRadarChart(document.getElementById('chartWork'), 'Trabajo', ['Objetivo 1','Objetivo 2','Objetivo 3'], [6, 8, 5], '#6f42c1', 10);
+
+        // Evento para SALUD MENTAL
+        document.querySelector('.chart-title.mental').addEventListener('click', () => {
+            if (!mentalLabels.includes('Consciencia')) {
+                mentalLabels.push('Consciencia');
+                chartMental.destroy();
+                chartMental = createRadarChart(document.getElementById('chartMental'), 'Mental', mentalLabels, [8, 6, 7, 10], '#007bff', 40);
+            }
+        });
+
+        // Evento para SALUD FÍSICA
+        document.querySelector('.chart-title.physical').addEventListener('click', () => {
+            if (!physicalLabels.includes('Movilidad')) {
+                physicalLabels.push('Movilidad');
+                chartPhysical.destroy();
+                chartPhysical = createRadarChart(document.getElementById('chartPhysical'), 'Física', physicalLabels, [5, 9, 6, 12], '#28a745', 40);
+            }
+        });
     </script>
 
 </body>
 </html>
+
