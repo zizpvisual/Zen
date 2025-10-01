@@ -5,16 +5,27 @@
   <title>Pilares de Progreso</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f8f8;}
-    .header { padding: 20px; font-size: 24px; font-weight: bold; color: #333;}
-    .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;}
-    .chart-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 15px; text-align:center;}
-    .chart-title { font-weight: bold; margin-bottom: 10px; cursor:pointer;}
-    .chart-title.mental { color: #007bff;}
-    canvas { max-width: 200px; max-height:200px;}
-    .navbar { display: flex; justify-content: space-around; align-items:center; background:#fff; padding:10px 0; border-top:1px solid #eee; position:sticky; bottom:0;}
-    .nav-item { flex:1; text-align:center; font-size:12px; color:#ccc;}
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f8f8; display:flex; flex-direction:column; min-height:100vh;}
+    .header { padding: 20px; font-size: 24px; font-weight: bold; color: #333; text-align:left;}
+    .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; flex-grow:1;}
+    .chart-card { background:#fff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding:15px; display:flex; flex-direction:column; align-items:center; text-align:center;}
+    .chart-title { font-size:16px; font-weight:bold; margin-bottom:10px; cursor:pointer;}
+    .chart-title.mental { color:#007bff;}
+    .chart-title.physical { color:#28a745;}
+    .chart-title.university { color:#dc3545;}
+    .chart-title.work { color:#6f42c1;}
+    canvas { max-width:200px; max-height:200px;}
+    .navbar { display:flex; justify-content:space-around; align-items:center; background:#fff; padding:10px 0; border-top:1px solid #eee; box-shadow:0 -2px 5px rgba(0,0,0,0.05); position:sticky; bottom:0; width:100%;}
+    .nav-item { display:flex; flex-direction:column; align-items:center; color:#ccc; font-size:12px; text-decoration:none; flex:1;}
     .nav-item.active { color:#007bff;}
+    .nav-icon { font-size:24px; margin-bottom:5px; width:40px; height:40px; display:flex; justify-content:center; align-items:center; border-radius:50%;}
+    .nav-item:nth-child(2) .nav-icon { background-color:#007bff; color:white; box-shadow:0 0 10px rgba(0,0,0,0.2);}
+    .icon-calendar::before { content:'🗓️';}
+    .icon-stats::before { content:'📈';}
+    .icon-scan::before { content:'📸';}
+    .icon-store::before { content:'🏪';}
+    .icon-profile::before { content:'👤';}
+
     /* ---- NUEVO: pantallas ---- */
     .screen { display:none; padding:20px;}
     .active-screen { display:block;}
@@ -37,6 +48,14 @@
     <div class="chart-card">
       <a class="chart-title physical">SALUD FÍSICA</a>
       <canvas id="chartPhysical"></canvas>
+    </div>
+    <div class="chart-card">
+      <a class="chart-title university">UNIVERSIDAD</a>
+      <canvas id="chartUniversity"></canvas>
+    </div>
+    <div class="chart-card">
+      <a class="chart-title work">TRABAJO</a>
+      <canvas id="chartWork"></canvas>
     </div>
   </div>
 </div>
@@ -76,73 +95,67 @@
 
 <!-- Menú inferior -->
 <div class="navbar">
-  <div class="nav-item active">📈</div>
-  <div class="nav-item">🗓️</div>
-  <div class="nav-item">👤</div>
+  <a href="#" class="nav-item"><div class="nav-icon icon-calendar"></div></a>
+  <a href="#" class="nav-item active"><div class="nav-icon icon-stats"></div></a>
+  <a href="#" class="nav-item"><div class="nav-icon icon-scan"></div></a>
+  <a href="#" class="nav-item"><div class="nav-icon icon-store"></div></a>
+  <a href="#" class="nav-item"><div class="nav-icon icon-profile"></div></a>
 </div>
 
 <script>
   let sleepChart;
+  let chartMental, chartPhysical, chartUniversity, chartWork;
+  let mentalLabels = ['Dormir','Celular','Organización'];
+  let physicalLabels = ['Hidratación','Comida','Caminar'];
 
-  function openSleep(){
-    showScreen("screen-sleep-goal");
+  function createRadarChart(ctx, label, labels, data, color, maxScale) {
+      return new Chart(ctx, {
+          type: 'radar',
+          data: { labels: labels, datasets: [{
+              label: label,
+              data: data,
+              backgroundColor: color+'33',
+              borderColor: color,
+              borderWidth: 2,
+              pointBackgroundColor: color
+          }]},
+          options: { responsive:true, scales:{ r:{ beginAtZero:true, min:0, max:maxScale } } }
+      });
   }
 
-  function showHelper(){
-    document.getElementById("helper").style.display="block";
-  }
+  // Inicializar gráficos principales
+  chartMental = createRadarChart(document.getElementById('chartMental'), 'Mental', mentalLabels, [8,6,7], '#007bff', 20);
+  chartPhysical = createRadarChart(document.getElementById('chartPhysical'), 'Física', physicalLabels, [5,9,6], '#28a745', 20);
+  chartUniversity = createRadarChart(document.getElementById('chartUniversity'), 'Universidad', ['Objetivo 1','Objetivo 2','Objetivo 3'], [7,4,8], '#dc3545', 10);
+  chartWork = createRadarChart(document.getElementById('chartWork'), 'Trabajo', ['Objetivo 1','Objetivo 2','Objetivo 3'], [6,8,5], '#6f42c1', 10);
 
+  // Navegación de pantallas
+  function openSleep(){ showScreen("screen-sleep-goal"); }
+  function showHelper(){ document.getElementById("helper").style.display="block"; }
   function calcularRecomendacion(){
-    let edad = parseInt(document.getElementById("edad").value);
-    let sexo = document.getElementById("sexo").value;
-    let rec;
-    if(edad>=18 && edad<=25){
-      rec = "Lo recomendable son 7 a 9 horas. Para ti, objetivo óptimo: 8 h.";
-    } else {
-      rec = "Generalmente se recomiendan 7-9 h para adultos.";
-    }
-    document.getElementById("recomendacion").innerText = rec;
-    document.getElementById("metaSueno").value = 8;
+    let edad=parseInt(document.getElementById("edad").value);
+    let rec=(edad>=18 && edad<=25) ? "Lo recomendable son 7 a 9 horas. Para ti, objetivo óptimo: 8 h." : "Generalmente se recomiendan 7-9 h para adultos.";
+    document.getElementById("recomendacion").innerText=rec;
+    document.getElementById("metaSueno").value=8;
   }
-
   function goToTracking(){
     showScreen("screen-sleep-tracking");
-    // inicializar gráfico de barras
-    const ctx = document.getElementById("sleepChart").getContext("2d");
-    sleepChart = new Chart(ctx,{
-      type:"bar",
-      data:{
-        labels:["Hoy"],
-        datasets:[{
-          label:"Horas de sueño",
-          data:[0],
-          backgroundColor:"rgba(0,123,255,0.3)"
-        }]
-      },
-      options:{
-        scales:{ y:{ beginAtZero:true, max:12 } }
-      }
-    });
+    const ctx=document.getElementById("sleepChart").getContext("2d");
+    sleepChart=new Chart(ctx,{ type:"bar", data:{ labels:["Hoy"], datasets:[{ label:"Horas de sueño", data:[0], backgroundColor:"rgba(0,123,255,0.3)" }]}, options:{ scales:{ y:{ beginAtZero:true, max:12 } } } });
   }
-
   function addSleepData(){
-    const desde = document.getElementById("desde").value;
-    const hasta = document.getElementById("hasta").value;
+    const desde=document.getElementById("desde").value;
+    const hasta=document.getElementById("hasta").value;
     if(desde && hasta){
-      let h1 = new Date("2000-01-01T"+desde+":00");
-      let h2 = new Date("2000-01-01T"+hasta+":00");
-      if(h2<=h1) h2.setDate(h2.getDate()+1); // cruzar medianoche
-      let horas = (h2-h1)/(1000*60*60);
-
-      sleepChart.data.datasets[0].data[0] = horas;
+      let h1=new Date("2000-01-01T"+desde+":00");
+      let h2=new Date("2000-01-01T"+hasta+":00");
+      if(h2<=h1) h2.setDate(h2.getDate()+1);
+      let horas=(h2-h1)/(1000*60*60);
+      sleepChart.data.datasets[0].data[0]=horas;
       sleepChart.update();
     }
   }
-
-  function backToMain(){
-    showScreen("screen-main");
-  }
-
+  function backToMain(){ showScreen("screen-main"); }
   function showScreen(id){
     document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active-screen"));
     document.getElementById(id).classList.add("active-screen");
